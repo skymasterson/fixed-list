@@ -1,0 +1,30 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Only Google accounts listed in config/access.pmEmails may use the app.
+    // That document is created by hand in the Firebase console (see README);
+    // self-service sign-up will replace it later.
+    function isAllowedPm() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in
+           get(/databases/$(database)/documents/config/access).data.pmEmails;
+    }
+
+    // All of a property manager's data lives under their own document and is
+    // visible to them alone. Contractors and tenants have no direct access:
+    // magic-link pages go through Cloud Functions that validate the token.
+    match /propertyManagers/{pmId} {
+      allow read, write: if isAllowedPm() && request.auth.uid == pmId;
+
+      match /{document=**} {
+        allow read, write: if isAllowedPm() && request.auth.uid == pmId;
+      }
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

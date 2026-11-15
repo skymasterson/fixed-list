@@ -1,0 +1,10 @@
+node_modules/
+functions/lib/
+web/dist/
+web/dev-dist/
+.firebase/
+*.log
+.env
+.env.*
+!.env.example
+e2e/screenshots/
