@@ -7,4 +7,5 @@ web/dev-dist/
 .env
 .env.*
 !.env.example
+!.env.development
 e2e/screenshots/
